@@ -1,5 +1,5 @@
 defmodule Playfair.Typst do
-  alias Playfair.Typst.Color.RGB
+  alias Playfair.Color.RGB
   alias Playfair.Plot2D.XYAxis
   alias Playfair.Length
   alias Playfair.Typst.Text
