@@ -2,6 +2,7 @@ defmodule Playfair.Plot2D.XYPlot do
   alias __MODULE__
   alias Playfair.Plot2D.XYAxis
   alias Playfair.Typst
+  alias Playfair.Config
   alias Playfair.Typst.Serializer
   import Playfair.Length, only: [sigil_L: 2]
 
@@ -20,12 +21,19 @@ defmodule Playfair.Plot2D.XYPlot do
               "y2" => XYAxis.new(name: "y2", location: :right, direction: :btt),
             }
 
-  def put_title(%XYPlot{} = xy_plot, title) do
+  def put_title(%XYPlot{} = xy_plot, title, opts \\ []) do
     typst_title =
       if is_binary(title) do
-        Typst.raw("[#{title}]")
-      else
+        title_text_attrs = Keyword.get(opts, :text, [])
+        base_text_attrs = Config.get_plot_title_text_attributes()
+        # Merge all attributes
+        text_attrs = Keyword.merge(base_text_attrs, title_text_attrs)
+
         title
+        |> Typst.text(text_attrs)
+        |> Typst.to_typst()
+      else
+        Typst.to_typst(title)
       end
 
     %{xy_plot | title: typst_title}
@@ -167,8 +175,8 @@ defmodule Playfair.Plot2D.XYPlot do
     struct(__MODULE__, args)
   end
 
-  def put_axis_label(%XYPlot{} = xy_plot, name, label) do
-    update_axis(xy_plot, name, fn axis -> XYAxis.put_label(axis, label) end)
+  def put_axis_label(%XYPlot{} = xy_plot, name, label, opts \\ []) do
+    update_axis(xy_plot, name, fn axis -> XYAxis.put_label(axis, label, opts) end)
   end
 
   defp separate_axes(axes) do
@@ -250,26 +258,86 @@ defmodule Playfair.Plot2D.XYPlot do
     )
   end
 
-  # def example() do
-  #   data = [
-  #     {"Group A", Enum.map(1..50, fn _ -> norm(5.0, 1.7) end)},
-  #     {"Group B", Enum.map(1..60, fn _ -> norm(4.0, 2.0) end)},
-  #     {"Group C", Enum.map(1..30, fn _ -> norm(7.9, 0.6) end)},
-  #     {"Group D", Enum.map(1..80, fn _ -> norm(5.0, 3.2) end)},
-  #   ]
+  # Plot types
 
-  #   serialized_plot =
-  #     new([])
-  #     |> BoxPlot.plot("x", "y", data)
-  #     |> finalize()
-  #     |> to_typst()
-  #     |> Serializer.serialize()
-  #     |> then(fn serialized -> ["#", serialized] end)
-  #     |> IO.iodata_to_binary()
+  # TODO: Do we really want this module?
 
-  #   template = File.read!("priv/template.typ")
-  #   typst_file = String.replace(template, "// $ADD-PLOT-HERE", serialized_plot)
-  #   {:ok, pdf_binary} = ExTypst.render_to_pdf(typst_file)
-  #   File.write!("example.pdf", pdf_binary)
-  # end
+  alias Playfair.Plot2D.XYPlot.BoxPlot
+
+  @not_implemented_message "Function not implemented."
+
+  @doc false
+  def violin(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def density(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def histogram(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def boxplot(x_axis, y_axis, data, opts \\ []) do
+    BoxPlot.plot(x_axis, y_axis, data, opts)
+  end
+
+  def ridgeline(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def scatterplot(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def heatmap(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def correlogram(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def bubble(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def connected_scatter(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def density_2d(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def barplot(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def radar(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def word_cloud(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def parallel(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def lolipop(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def circular_barplot(_x_axis, _y_axis, _data, _opts) do
+    raise RuntimeError, @not_implemented_message
+  end
+
+  def treemap(_x, _y), do: nil
+
+  def venn_diagram(nil), do: nil
+
+  def donut(nil), do: nil
 end

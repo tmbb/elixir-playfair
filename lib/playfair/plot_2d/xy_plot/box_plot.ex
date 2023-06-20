@@ -1,6 +1,5 @@
 defmodule Playfair.Plot2D.XYPlot.BoxPlot do
   import Playfair.Length, only: [sigil_L: 2]
-  alias Playfair.Typst
   alias Playfair.Plot2D.XYPlot
   alias Playfair.Plot2D.XYAxis
 
@@ -54,13 +53,10 @@ defmodule Playfair.Plot2D.XYPlot.BoxPlot do
     y_min = Enum.min(y_mins)
     y_max = Enum.max(y_maxs)
 
+    # TODO: Deal with escaping somehow
     x_tick_labels =
       for {label, _ys} <- data do
-        if is_binary(label) do
-          Typst.raw("[#{label}]")
-        else
-          label
-        end
+        label
       end
 
     plot =

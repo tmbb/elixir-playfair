@@ -1,4 +1,213 @@
 defmodule Playfair.Config do
+  defstruct text_font: nil,
+            text_style: nil,
+            text_weight: nil,
+            text_stretch: nil,
+            text_size: nil,
+            text_fill: nil,
+            text_ligatures: nil,
+            text_discretionary_ligatures: nil,
+            text_historical_ligatures: nil,
+            text_number_type: nil,
+            text_number_width: nil,
+            text_slashed_zero: nil,
+            text_fractions: nil,
+            text_features: nil,
+            text_escape: false,
+            # Title attributes
+            plot_title_font: nil,
+            plot_title_style: nil,
+            plot_title_weight: nil,
+            plot_title_stretch: nil,
+            plot_title_size: nil,
+            plot_title_fill: nil,
+            plot_title_ligatures: nil,
+            plot_title_discretionary_ligatures: nil,
+            plot_title_historical_ligatures: nil,
+            plot_title_number_type: nil,
+            plot_title_number_width: nil,
+            plot_title_slashed_zero: nil,
+            plot_title_fractions: nil,
+            plot_title_features: nil,
+            plot_title_escape: false,
+            # Axis label attributes
+            axis_label_font: nil,
+            axis_label_style: nil,
+            axis_label_weight: nil,
+            axis_label_stretch: nil,
+            axis_label_size: nil,
+            axis_label_fill: nil,
+            axis_label_ligatures: nil,
+            axis_label_discretionary_ligatures: nil,
+            axis_label_historical_ligatures: nil,
+            axis_label_number_type: nil,
+            axis_label_number_width: nil,
+            axis_label_slashed_zero: nil,
+            axis_label_fractions: nil,
+            axis_label_features: nil,
+            axis_label_escape: false,
+            # Major tick labels
+            major_tick_label_font: nil,
+            major_tick_label_style: nil,
+            major_tick_label_weight: nil,
+            major_tick_label_stretch: nil,
+            major_tick_label_size: nil,
+            major_tick_label_fill: nil,
+            major_tick_label_ligatures: nil,
+            major_tick_label_discretionary_ligatures: nil,
+            major_tick_label_historical_ligatures: nil,
+            major_tick_label_number_type: nil,
+            major_tick_label_number_width: nil,
+            major_tick_label_slashed_zero: nil,
+            major_tick_label_fractions: nil,
+            major_tick_label_features: nil,
+            major_tick_label_escape: false
+
+  def with_options(attrs, fun) do
+    # We'll use nil instead of a default value
+    # It doesn't really make a difference, though
+    old_config = Process.get(:playfair_config)
+    attrs_as_map = Enum.into(attrs, %{})
+
+    try do
+      # Here we want an actual config, not nil
+      base_config = get_config()
+      full_config = Map.merge(base_config, attrs_as_map)
+      # Stor the new config in the process dictionary
+      put_config(full_config)
+      # Run the actual body with the new config available
+      fun.()
+    after
+      put_config(old_config)
+    end
+  end
+
+  def get_config() do
+    Process.get(:playfair_config, %__MODULE__{})
+  end
+
+  defp put_config(%__MODULE__{} =  config) do
+    Process.put(:playfair_config, config)
+  end
+
+  defp put_config(nil) do
+    Process.put(:playfair_config, nil)
+  end
+
+  def get_plot_title_text_attributes() do
+    plot_title_text_attributes(get_config())
+  end
+
+  def get_axis_label_text_attributes() do
+    axis_label_text_attributes(get_config())
+  end
+
+  def get_major_tick_label_text_attributes() do
+    major_tick_label_text_attributes(get_config())
+  end
+
+  def plot_title_text_attributes(%__MODULE__{} = config) do
+    get_many_with_fallbacks(config,
+      font: {:plot_title_font, [:text_font]},
+      style: {:plot_title_style, [:text_style]},
+      weight: {:plot_title_weight, [:text_weight]},
+      stretch: {:plot_title_stretch, [:text_stretch]},
+      size: {:plot_title_size, [:text_size]},
+      fill: {:plot_title_fill, [:text_fill]},
+      ligatures: {:plot_title_ligatures, [:text_ligatures]},
+      discretionary_ligatures: {:plot_title_discretionary_ligatures, [:text_discretionary_ligatures]},
+      historical_ligatures: {:plot_title_historical_ligatures, [:text_historical_ligatures]},
+      number_type: {:plot_title_number_type, [:text_number_type]},
+      number_width: {:plot_title_number_width, [:text_number_width]},
+      slashed_zero: {:plot_title_slashed_zero, [:text_slashed_zero]},
+      fractions: {:plot_title_fractions, [:text_title_fractions]},
+      features: {:plot_title_features, [:text_features]},
+      escape: {:plot_title_escape, [:text_escape]}
+    )
+  end
+
+  def axis_label_text_attributes(%__MODULE__{} = config) do
+    get_many_with_fallbacks(config,
+      font: {:axis_label_font, [:text_font]},
+      style: {:axis_label_style, [:text_style]},
+      weight: {:axis_label_weight, [:text_weight]},
+      stretch: {:axis_label_stretch, [:text_stretch]},
+      size: {:axis_label_size, [:text_size]},
+      fill: {:axis_label_fill, [:text_fill]},
+      ligatures: {:axis_label_ligatures, [:text_ligatures]},
+      discretionary_ligatures: {:axis_label_discretionary_ligatures, [:text_discretionary_ligatures]},
+      historical_ligatures: {:axis_label_historical_ligatures, [:text_historical_ligatures]},
+      number_type: {:axis_label_number_type, [:text_number_type]},
+      number_width: {:axis_label_number_width, [:text_number_width]},
+      slashed_zero: {:axis_label_slashed_zero, [:text_slashed_zero]},
+      fractions: {:axis_label_fractions, [:text_title_fractions]},
+      features: {:axis_label_features, [:text_features]},
+      escape: {:axis_label_escape, [:text_escape]}
+    )
+  end
+
+  def major_tick_label_text_attributes(%__MODULE__{} = config) do
+    get_many_with_fallbacks(config,
+      font: {:major_tick_label_font, [:text_font]},
+      style: {:major_tick_label_style, [:text_style]},
+      weight: {:major_tick_label_weight, [:text_weight]},
+      stretch: {:major_tick_label_stretch, [:text_stretch]},
+      size: {:major_tick_label_size, [:text_size]},
+      fill: {:major_tick_label_fill, [:text_fill]},
+      ligatures: {:major_tick_label_ligatures, [:text_ligatures]},
+      discretionary_ligatures: {:major_tick_label_discretionary_ligatures, [:text_discretionary_ligatures]},
+      historical_ligatures: {:major_tick_label_historical_ligatures, [:text_historical_ligatures]},
+      number_type: {:major_tick_label_number_type, [:text_number_type]},
+      number_width: {:major_tick_label_number_width, [:text_number_width]},
+      slashed_zero: {:major_tick_label_slashed_zero, [:text_slashed_zero]},
+      fractions: {:major_tick_label_fractions, [:text_title_fractions]},
+      features: {:major_tick_label_features, [:text_features]},
+      escape: {:major_tick_label_escape, [:text_escape]}
+    )
+  end
+
+  defp fetch_with_fallbacks(config, key, fallbacks) do
+    # TODO: simplify this... Maybe with get instead of fetch?
+    Enum.reduce_while(fallbacks, Map.fetch(config, key), fn new_key, current_value ->
+      case current_value do
+        {:ok, value} when value != nil ->
+          {:halt, {:ok, value}}
+
+        _other ->
+          case Map.fetch(config, new_key) do
+            {:ok, value} when value != nil ->
+              {:halt, {:ok, value}}
+
+            _other ->
+              {:cont, Map.fetch(config, new_key)}
+          end
+      end
+    end)
+  end
+
+  defp get_many_with_fallbacks(config, keys_and_fallbacks) do
+    for {attr_key, {key, fallbacks}} <- keys_and_fallbacks do
+      {attr_key, get_with_fallbacks(config, key, fallbacks)}
+    end
+  end
+
+  defp get_with_fallbacks(config, key, fallbacks, opts \\ []) do
+    default = Keyword.get(opts, :default, nil)
+    case fetch_with_fallbacks(config, key, fallbacks) do
+      {:ok, value} -> value
+      :error -> default
+    end
+  end
+
+  def example() do
+    with_options([text_font: "Ubuntu"], fn ->
+      get_config().text_font
+      get_plot_title_text_attributes()
+    end)
+  end
+end
+
+defmodule Playfair.Config2 do
   defstruct axes_autolimit_mode: "data",
             axes_axisbelow: "line",
             axes_edgecolor: "black",

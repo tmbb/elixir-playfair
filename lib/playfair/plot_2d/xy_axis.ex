@@ -1,6 +1,7 @@
 defmodule Playfair.Plot2D.XYAxis do
   alias Playfair.TickManagers.AutoTickManager
   alias Playfair.Typst
+  alias Playfair.Config
 
   alias Playfair.Scales.LinearScale
   import Playfair.Length, only: [sigil_L: 2]
@@ -66,10 +67,22 @@ defmodule Playfair.Plot2D.XYAxis do
     major_tick_locations = axis.major_tick_locations || []
     major_tick_labels = axis.major_tick_labels || []
 
+    # TODO: Get this from somewhere!
+    label_text_attrs = []
+    base_text_attrs = Config.get_major_tick_label_text_attributes()
+    # Merge all attributes
+    text_attrs = Keyword.merge(base_text_attrs, label_text_attrs)
+
+    typst_major_tick_labels =
+      for label <- major_tick_labels do
+        # Apply the options to the label
+        Typst.text(label, text_attrs)
+      end
+
     %{axis |
         frozen: true,
         major_tick_locations: major_tick_locations,
-        major_tick_labels: major_tick_labels}
+        major_tick_labels: typst_major_tick_labels}
   end
 
   def maybe_update_min_value(%XYAxis{min_value: nil} = axis, new_candidate) do
@@ -118,10 +131,15 @@ defmodule Playfair.Plot2D.XYAxis do
     %{axis | major_tick_locations: locations}
   end
 
-  def put_label(%XYAxis{} = axis, label) do
+  def put_label(%XYAxis{} = axis, label, opts \\ []) do
     typst_label =
       if is_binary(label) do
-        Typst.raw("[#{label}]")
+        label_text_attrs = Keyword.get(opts, :text, [])
+        base_text_attrs = Config.get_axis_label_text_attributes()
+        # Merge all attributes
+        text_attrs = Keyword.merge(base_text_attrs, label_text_attrs)
+        # Apply the options to the label
+        Typst.text(label, text_attrs)
       else
         label
       end

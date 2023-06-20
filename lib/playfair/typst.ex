@@ -2,6 +2,7 @@ defmodule Playfair.Typst do
   alias Playfair.Typst.Color.RGB
   alias Playfair.Plot2D.XYAxis
   alias Playfair.Length
+  alias Playfair.Typst.Text
 
   def raw(text), do: {:raw, text}
 
@@ -10,6 +11,10 @@ defmodule Playfair.Typst do
     |> Map.delete(:__struct__)
     |> Enum.into([])
     |> Enum.map(fn {k, v} -> kw_arg(k, v) end)
+  end
+
+  def proplist_to_kw_args(proplist) do
+    Enum.map(proplist, fn {k, v} -> kw_arg(k, v) end)
   end
 
   def underscore_in_keys_to_hyphen(list) when is_list(list) do
@@ -28,6 +33,10 @@ defmodule Playfair.Typst do
     |> Enum.into([])
     |> underscore_in_keys_to_hyphen()
     |> Enum.into(%{})
+  end
+
+  def text(content, opts \\ []) do
+    Text.new(content, opts)
   end
 
   def operator(operator, left, right),
@@ -59,6 +68,12 @@ defmodule Playfair.Typst do
     Length.to_typst(length)
   end
 
+  def to_typst(%RGB{} = rgb) do
+    {:function_call, variable("rgb"), [rgb.r, rgb.g, rgb.b, rgb.a]}
+  end
+
+  def to_typst(%Text{} = text), do: Text.to_typst(text)
+
   def to_typst(map) when map == %{} do
     # Add a dummy key to empty maps so that they are not confused with arrays
     dictionary(__map__: variable(:none))
@@ -80,9 +95,6 @@ defmodule Playfair.Typst do
 
   def to_typst(nil), do: variable(:none)
 
-  def to_typst(%RGB{} = rgb) do
-    {:function_call, variable("rgb"), [rgb.r, rgb.g, rgb.b, rgb.a]}
-  end
 
   def to_typst(i) when is_integer(i), do: i
   def to_typst(f) when is_float(f), do: f
